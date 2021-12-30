@@ -320,14 +320,18 @@
                         removeEventListener('keydown', listen);
                         if (playerHit === 3) {
                             winner.innerHTML = "You";
+                            winner.style.color = "green";
                             won.innerHTML = "won the game,hurray!!!1";
+                            won.style.color = "green";
                             gameOver = true;
                             start.innerHTML="New game";
 
                         }
                         else if (computerHit === 3) {
                             winner.innerHTML = "Computer";
+                            winner.style.color='red';
                             won.innerHTML = "won the game,oops..";
+                            won.style.color="red";
                             gameOver = true;
                             start.innerHTML="New game";
 
