@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game</title>
+
+    <style>
+        #main{
+            margin-left:300px;
+            width: 800px;
+        }
+        .player{
+            background-color: greenyellow;
+            width: 60px;
+            height: 20px;
+            position: absolute;
+
+        }
+
+        #ground{
+            background-color: aliceblue;
+            width:400px;
+            height:200px;
+            margin-top: 10px
+            overflow: hidden;
+        }
+
+        #player{
+            margin-top: 180px;
+        }
+
+        .bullet{
+            ;
+            margin-top: 160px;
+            margin-left: 295px;
+            width: 6px;
+            height: 20px;
+            background-color: gold;
+            position: absolute;
+        }
+
+        .bullet2{
+            margin-top: 20px;
+            width: 6px;
+            height: 20px;
+            background-color: gold;
+            position: absolute;
+        }
+        #start{
+            margin-top: 10px;
+            width: 100px;
+            height: 30px;
+            background-color: darkolivegreen;
+            color: white;
+        }
+
+        #barPlayer{
+            margin-top: 10px;
+            height: 10px;
+            width: 300px;
+            background-color: transparent;
+            border-style: groove;
+        }
+
+        #barComputer{
+            margin-top: 50px;
+            height: 10px;
+            width: 300px;
+            background-color: transparent;
+            border-style: groove;
+        }
+        #barHealthComputer{
+            height: 10px;
+            width: 100%;
+            background-color: orange;
+        }
+        #barHealthPlayer{
+            height: 10px;
+            width: 100%;
+            background-color: red;
+        }
+        #instructions{
+            margin-top: 30px;
+        }
+
+        #score{
+            margin-top: 20px;
+            position: relative;
+            width: 400px;
+            height: 20px;
+            font-size: 30px;
+        }
+        .score{
+            width: 40px;
+            height: 40px;
+        }
+
+        #winner{
+            font-size: 60px;
+        }
+        #win{
+            margin-top: 50px;
+            font-size: 30px;
+        }
+
+
+
+
+
+    </style>
+</head>
+
+
+ <body>
+ <div id="main">
+ <div id="barComputer">
+     <div id ='barHealthComputer' ></div>
+ </div>
+<div id ='ground'>
+
+    <div id="computer" class="player">computer</div>
+    <div id="player" class="player">player</div>
+</div>
+<div id="barPlayer">
+    <div id="barHealthPlayer"></div>
+</div>
+
+<button id="start" onclick="Start()">Start</button>
+ <div id="instructions">
+     Move left<button> &lAarr; </button>
+     Fire<button>&uArr;</button>
+     Move right<button>&rAarr;</button>
+ </div>
+
+ <div id="score" >
+     <div><span>Computer Score :</span><span id='computerScore' class="score">0</span></div>
+     <div><span>Player Score :</span><span id='playerScore' class="score">0</span></div>
+ </div>
+
+ <div id="win">
+     <div id="winner"></div>
+     <div id="won"></div>
+ </div>
+ </div>
+
+
+<script>
+    const c=document.getElementById('computer')
+    const p=document.getElementById('player')
+    const ground = document.getElementById('ground')
+    const button = document.getElementById('start')
+    const pBar = document.getElementById('barHealthPlayer')
+    const cBar = document.getElementById('barHealthComputer')
+    const playerScore = document.getElementById("playerScore")
+    const computerScore = document.getElementById("computerScore")
+    const winner=document.getElementById("winner")
+    const won =document.getElementById("won")
+    const start=document.getElementById('start')
+
+
+    let is_running=false
+    let gameOver = false
+
+    let round = 0
+    let computerHit = 0
+    let playerHit = 0
+
+
+
+
+
+
+
+
+
+    function Start() {
+        let ComputerHealth = 100;
+        let PlayerHealth = 100;
+
+                if (is_running === false) {
+
+
+                    cBar.style.width = ComputerHealth + "%";
+                    pBar.style.width = PlayerHealth + '%';
+
+                    window.addEventListener("keydown", listen)
+
+                    function listen(e) {
+                        let left = parseInt(window.getComputedStyle(p).getPropertyValue("margin-left"));
+                        if (e.key === "ArrowLeft" && left >0) {
+                            left = left - 10
+                            p.style.marginLeft = left + "px";
+                        } else if (e.key === "ArrowRight" && left<340) {
+                            left = left + 10
+                            p.style.marginLeft = left + "px";
+
+                        } else if (e.key === "ArrowUp") {
+                                let bullet = document.createElement("div");
+                                bullet.classList.add("bullet");
+                                bullet.style.left = left + 40 + 'px';
+                                ground.appendChild(bullet);
+
+
+                                let playbullet = setInterval(() => {
+                                    let top = parseInt(window.getComputedStyle(bullet).getPropertyValue("margin-top"));
+
+                                    if (top < 20) {
+                                        bullet.remove();
+                                    } else {
+                                        let bulletBound = bullet.getBoundingClientRect()
+                                        let computerBound = c.getBoundingClientRect()
+                                        if (
+                                            bulletBound.left >= computerBound.left &&
+                                            bulletBound.right <= computerBound.right &&
+                                            bulletBound.top - 20 <= computerBound.top &&
+                                            bulletBound.bottom - 20 <= computerBound.bottom
+                                        ) {
+                                            c.style.backgroundColor = 'red';
+                                            bullet.remove();
+                                            ComputerHealth = ComputerHealth - 20;
+                                            cBar.style.width = ComputerHealth + '%';
+                                            setTimeout(() =>
+                                                c.style.backgroundColor = 'greenyellow', 500);
+                                            if (ComputerHealth === 0 && PlayerHealth > 0) {
+                                                round = round + 1;
+                                                start.innerHTML = "Next round"
+                                                gameOver = false;
+                                                playerHit = playerHit + 1;
+                                                reset();
+                                            }
+
+                                        } else {
+                                            top = top - 20;
+                                            bullet.style.marginTop = top + "px";
+                                        }
+                                    }
+                                }, 100);
+                            }
+                    }
+
+                    let com = setInterval(ComputerMove, 10);
+                    let comBullet = setInterval(BulletMove, 1500);
+                    is_running = true;
+
+                    let x = 0;
+                    let y = -1;
+
+
+                    function ComputerMove() {
+
+                        if (x < 340 && x >= 0 && y < x) {
+                            y = x;
+                            x = x + 1;
+                        } else if (x === 340) {
+                            x = x - 1;
+                        } else if (x > 0 && x < 340 && y >= x) {
+                            y = x;
+                            x = x - 1;
+                        } else {
+                            y = x;
+                            x = x + 1
+                        }
+
+                        c.style.marginLeft = x + "px";
+                        console.log(x)
+                    }
+
+                    function BulletMove() {
+                        let bullet2 = document.createElement("div");
+                        bullet2.classList.add("bullet2");
+                        bullet2.style.marginLeft = x + 20 + 'px';
+                        ground.appendChild(bullet2);
+
+                        setInterval(function comBulletMove() {
+                            let top = parseInt(window.getComputedStyle(bullet2).getPropertyValue("margin-top"));
+
+                            if (top >= 180) {
+                                bullet2.remove();
+                            } else {
+
+                                let bulletBound = bullet2.getBoundingClientRect();
+                                let playerBound = p.getBoundingClientRect();
+                                if (
+                                    bulletBound.left >= playerBound.left &&
+                                    bulletBound.right <= playerBound.right &&
+                                    bulletBound.top + 25 >= playerBound.top &&
+                                    bulletBound.bottom + 25 >= playerBound.bottom
+                                ) {
+                                    p.style.backgroundColor = 'red';
+                                    bullet2.remove();
+                                    PlayerHealth = PlayerHealth - 20;
+                                    pBar.style.width = PlayerHealth + "%";
+                                    setTimeout(() =>
+                                        p.style.backgroundColor = 'greenyellow', 500);
+                                    if (PlayerHealth === 0 && ComputerHealth > 0) {
+                                        round = round + 1;
+                                        start.innerHTML = "Next round"
+                                        gameOver = false;
+                                        computerHit = computerHit + 1;
+                                        reset();
+                                    }
+
+                                } else {
+                                    top = top + 10;
+                                    bullet2.style.marginTop = top + "px";
+                                }
+                            }
+                        }, 150)
+                    }
+                       function reset() {
+                        is_running = false;
+                        clearInterval(com);
+                        clearInterval(comBullet);
+                        removeEventListener('keydown', listen);
+                        if (playerHit === 3) {
+                            winner.innerHTML = "You";
+                            won.innerHTML = "won the game,hurray!!!1";
+                            gameOver = true;
+                            start.innerHTML="New game";
+
+                        }
+                        else if (computerHit === 3) {
+                            winner.innerHTML = "Computer";
+                            won.innerHTML = "won the game,oops..";
+                            gameOver = true;
+                            start.innerHTML="New game";
+
+                        }
+
+                        playerScore.innerHTML = playerHit;
+                        computerScore.innerHTML = computerHit;
+                    }
+
+                    if(gameOver===true) {
+                            winner.innerHTML = null;
+                            won.innerHTML = null;
+                            round = 0;
+                            computerHit = 0;
+                            playerHit = 0;
+                            computerScore.innerHTML=computerHit;
+                            playerScore.innerHTML=playerHit;
+
+                        }
+
+                } else {
+
+                }
+        }
+
+
+
+
+
+
+
+</script>
+
+     </body>
+</html>
